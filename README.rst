@@ -20,6 +20,14 @@ To install:
 Release History
 ---------------
 
+XXXX-XX-XX Version 0.5.0
+++++++++++++++++++++++++
+
+**Disclaimer**
+
+This version introduces async/await, and is only compatible with Python >= 3.5.
+To build from source, requirement is pip >= 9.0 and setuptools >= 24.3.
+
 2017-05-22 Version 0.4.8
 ++++++++++++++++++++++++
 

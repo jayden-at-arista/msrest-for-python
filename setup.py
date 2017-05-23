@@ -28,7 +28,7 @@ from setuptools import setup
 
 setup(
     name='msrest',
-    version='0.4.8',
+    version='0.5.0',
     author='Microsoft Corporation',
     packages=['msrest'],
     url=("https://github.com/Azure/msrest-for-python"),
@@ -38,11 +38,7 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License',
@@ -53,7 +49,5 @@ setup(
         "isodate>=0.5.4",
         "certifi>=2017.4.17",
     ],
-    extras_require={
-        ":python_version<'3.4'": ['enum34>=1.0.4'],
-    }
+    python_requires='>=3.5'
 )
