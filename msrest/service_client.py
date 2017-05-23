@@ -27,6 +27,8 @@
 import contextlib
 import logging
 import os
+import asyncio
+import functools
 try:
     from urlparse import urljoin, urlparse
 except ImportError:
@@ -138,7 +140,7 @@ class ServiceClient(object):
                           requests.adapters.HTTPAdapter(max_retries=max_retries))
         return kwargs
 
-    def send_formdata(self, request, headers=None, content=None, **config):
+    async def send_formdata(self, request, headers=None, content=None, **config):
         """Send data as a multipart form-data request.
         We only deal with file-like objects or strings at this point.
         The requests is not yet streamed.
@@ -153,9 +155,9 @@ class ServiceClient(object):
         file_data = {f: self._format_data(d) for f, d in content.items()}
         if headers:
             headers.pop('Content-Type', None)
-        return self.send(request, headers, None, files=file_data, **config)
+        return await self.send(request, headers, None, files=file_data, **config)
 
-    def send(self, request, headers=None, content=None, **config):
+    async def send(self, request, headers=None, content=None, **config):
         """Prepare and send request object according to configuration.
 
         :param ClientRequest request: The request object to be sent.
@@ -166,6 +168,7 @@ class ServiceClient(object):
         response = None
         session = self.creds.signed_session()
         kwargs = self._configure_session(session, **config)
+        loop = asyncio.get_event_loop()
 
         request.add_headers(headers if headers else {})
         if not kwargs.get('files'):
@@ -173,12 +176,18 @@ class ServiceClient(object):
         try:
 
             try:
-                response = session.request(
-                    request.method, request.url,
-                    data=request.data,
-                    headers=request.headers,
-                    **kwargs)
-                return response
+                future = loop.run_in_executor(
+                    None,
+                    functools.partial(
+                        session.request,
+                        request.method,
+                        request.url,
+                        request.data,
+                        request.headers,
+                        **kwargs
+                    )
+                )
+                return await future
 
             except (oauth2.rfc6749.errors.InvalidGrantError,
                     oauth2.rfc6749.errors.TokenExpiredError) as err:
@@ -189,12 +198,18 @@ class ServiceClient(object):
                 session = self.creds.refresh_session()
                 kwargs = self._configure_session(session)
 
-                response = session.request(
-                    request.method, request.url,
-                    request.data,
-                    request.headers,
-                    **kwargs)
-                return response
+                future = loop.run_in_executor(
+                    None,
+                    functools.partial(
+                        session.request,
+                        request.method,
+                        request.url,
+                        request.data,
+                        request.headers,
+                        **kwargs
+                    )
+                )
+                return await future
             except (oauth2.rfc6749.errors.InvalidGrantError,
                     oauth2.rfc6749.errors.TokenExpiredError) as err:
                 msg = "Token expired or is invalid."
