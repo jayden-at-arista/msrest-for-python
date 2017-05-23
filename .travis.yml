@@ -6,9 +6,9 @@ services:
 matrix:
   include:
     - python: 3.5
-      env: TOXENV=py35-autorest
+      env: TOXENV=py35 #-autorest
     - python: 3.6
-      env: TOXENV=py36-autorest
+      env: TOXENV=py36 #-autorest
 before_install:
   - docker pull lmazuel/autorest-test-server
   - docker run -p 3000:3000 lmazuel/autorest-test-server &
