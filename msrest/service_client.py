@@ -157,6 +157,7 @@ class ServiceClient(AsyncServiceClientMixin):
 
     def send_formdata(self, request, headers=None, content=None, **config):
         """Send data as a multipart form-data request.
+
         We only deal with file-like objects or strings at this point.
         The requests is not yet streamed.
 
